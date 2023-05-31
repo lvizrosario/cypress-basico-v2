@@ -3,6 +3,8 @@
 // O bloco DESCRIBE define a suíte de testes, e o bloco IT, define um caso de teste.
 
 describe('Central de Atendimento ao Cliente TAT', function() {
+  const THREE_SECOND_IN_MS = 3000
+
     beforeEach(function() {
         cy.visit('./src/index.html')
     })
@@ -13,25 +15,31 @@ describe('Central de Atendimento ao Cliente TAT', function() {
 
     // Exercício 1
     it('preenche os campos obrigatórios e envia o formulário', function() {
+        cy.clock()
         cy.get('#firstName').type('Luiz')
         cy.get('#lastName').type('Carlos')
         cy.get('#email').type('teste@email.com')
         cy.get('#open-text-area').type('Teste de área de texto', { delay: 0 })
-        
-        cy.contains('button', 'Enviar').click()
 
+        cy.contains('button', 'Enviar').click()
         cy.get('.success').should('be.visible')
+
+        cy.tick(THREE_SECOND_IN_MS)
+        cy.get('.success').should('not.be.visible')
     })
 
     // Exercício 2
     it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', function() {
+        cy.clock()
         cy.get('#firstName').type('Luiz')
         cy.get('#email').type('teste@email.com')
         cy.get('#open-text-area').type('Teste de área de texto', { delay: 0 })
         
         cy.contains('button', 'Enviar').click()
-
         cy.get('.error').should('be.visible')
+
+        cy.tick(THREE_SECOND_IN_MS)
+        cy.get('.error').should('not.be.visible')
     })
 
     // Exercício 3
@@ -43,6 +51,7 @@ describe('Central de Atendimento ao Cliente TAT', function() {
 
     // Exercício 4
     it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function() {
+        cy.clock()
         cy.get('#firstName').type('Luiz')
         cy.get('#lastName').type('Carlos')
         cy.get('#email').type('teste@email.com')
@@ -50,8 +59,10 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.get('#open-text-area').type('Teste de área de texto')
         
         cy.contains('button', 'Enviar').click()
-
         cy.get('.error').should('be.visible')
+
+        cy.tick(THREE_SECOND_IN_MS)
+        cy.get('.error').should('not.be.visible')
     })
 
     // Exercício 5
@@ -89,16 +100,24 @@ describe('Central de Atendimento ao Cliente TAT', function() {
 
     // Exercício 6
     it('exibe mensagem de erro ao submeter o formulário sem preencher os campos obrigatórios', function() {
+      cy.clock()
       cy.contains('button', 'Enviar').click()
 
       cy.get('.error').should('be.visible')
+
+      cy.tick(THREE_SECOND_IN_MS)
+      cy.get('.error').should('not.be.visible')
     })
 
     // Exercício 7 - Custom Commands
     it('envia o formulário com sucesso usando um comando customizado', function() {
+      cy.clock()
       cy.fillMandatoryFieldsAndSubmit()
 
       cy.get('.success').should('be.visible')
+
+      cy.tick(THREE_SECOND_IN_MS)
+      cy.get('.success').should('not.be.visible')
     })
 
     // Exercício 8 - Campos de Seleção Suspensa
@@ -131,20 +150,13 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     })
 
     // Exercício extra - Radio Button
-    it('marca cada tipo de atendimento', function() {
-      cy.get('[type="radio"]')
-        .should('be.checked')
-        .and('have.value', 'ajuda')
-
-      cy.get('[type="radio"]')
-        .check('elogio')
-        .should('be.checked')
-        .and('have.value', 'elogio')
-
-        cy.get('[type="radio"]')
-          .check('feedback')
-          .should('be.checked')
-          .and('have.value', 'feedback')
+    it.only('marca cada tipo de atendimento', function() {
+      cy.get('input[type="radio"]')
+        .should('have.length', 3)
+        .each(function($radio) {
+          cy.wrap($radio).check()
+          cy.wrap($radio).should('be.checked')
+        })
     })
 
     // Exercício 10 - Checkbox
@@ -172,7 +184,7 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         .selectFile('cypress/fixtures/example.json')
         .then(input => {
           expect(input[0].files[0].name).to.eq('example.json')
-        // O .then está capturando o input do comando interior e validando se o nome do primeiro arquivo
+        // O .then está capturando o input do comando anterior e validando se o nome do primeiro arquivo
         // do primeiro input está igual ao nome informado no .equal
         })
     })
