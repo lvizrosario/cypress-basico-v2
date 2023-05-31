@@ -50,19 +50,23 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     })
 
     // Exercício 4
-    it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function() {
+    Cypress._.times(3, function() {
+      it.only('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function() {
+        const longText = Cypress._.repeat('Teste de área de texto', 20)
+
         cy.clock()
         cy.get('#firstName').type('Luiz')
         cy.get('#lastName').type('Carlos')
         cy.get('#email').type('teste@email.com')
         cy.get('#phone-checkbox').check()
-        cy.get('#open-text-area').type('Teste de área de texto')
+        cy.get('#open-text-area').invoke('val', longText).should('have.value', longText)
         
         cy.contains('button', 'Enviar').click()
         cy.get('.error').should('be.visible')
 
         cy.tick(THREE_SECOND_IN_MS)
         cy.get('.error').should('not.be.visible')
+      })
     })
 
     // Exercício 5
@@ -150,7 +154,7 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     })
 
     // Exercício extra - Radio Button
-    it.only('marca cada tipo de atendimento', function() {
+    it('marca cada tipo de atendimento', function() {
       cy.get('input[type="radio"]')
         .should('have.length', 3)
         .each(function($radio) {
@@ -201,12 +205,12 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     // Exercício extra 2 - Upload de Arquivo
     it('seleciona um arquivo utilizando uma fixture para a qual foi dada um alias', function() {
       cy.fixture('example.json', { encoding: null }).as('exampleFile')
-      
+        
       cy.get('#file-upload')
         .selectFile('@exampleFile')
         .then(input => {
-          expect(input[0].files[0].name).to.eq('example.json')
-        })
+        expect(input[0].files[0].name).to.eq('example.json')
+      })
     })
 
     // Exercício 12 - Links que abrem em outra aba
