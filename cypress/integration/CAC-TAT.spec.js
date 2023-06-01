@@ -51,7 +51,7 @@ describe('Central de Atendimento ao Cliente TAT', function() {
 
     // Exercício 4
     Cypress._.times(3, function() {
-      it.only('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function() {
+      it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function() {
         const longText = Cypress._.repeat('Teste de área de texto', 20)
 
         cy.clock()
@@ -59,7 +59,10 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.get('#lastName').type('Carlos')
         cy.get('#email').type('teste@email.com')
         cy.get('#phone-checkbox').check()
-        cy.get('#open-text-area').invoke('val', longText).should('have.value', longText)
+        
+        cy.get('#open-text-area')
+          .invoke('val', longText)
+          .should('have.value', longText)
         
         cy.contains('button', 'Enviar').click()
         cy.get('.error').should('be.visible')
@@ -226,5 +229,42 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         .click()
 
       cy.contains('Talking About Testing').should('be.visible')
+    })
+
+    // Exercício Extra - Invoke (Show and Hide)
+    it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+      cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Mensagem enviada com sucesso.')
+      .invoke('hide')
+      .should('not.be.visible')
+      cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Valide os campos obrigatórios!')
+      .invoke('hide')
+      .should('not.be.visible')
+    })
+
+    // API Teste - Cy.request()
+    it('faz uma requisição HTTP', function() {
+      cy.request('https://cac-tat.s3.eu-central-1.amazonaws.com/index.html')
+        .should(function(response) {
+          const { status, statusText, body } = response
+          expect(status).to.equal(200)
+          expect(statusText).to.equal('OK')
+          expect(body).to.include('CAC TAT')
+        })
+    })
+
+    // Encontrando o GATO
+    it.only('encontrando o gato', function() {
+      cy.get('#cat')
+        .should('not.be.visible')
+        .invoke('show')
+        .should('be.visible')
     })
 })
